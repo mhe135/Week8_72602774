@@ -73,7 +73,7 @@ ggplot(revenue_data, aes(x = rental_day, y = daily_revenue)) +
 
 ```
 
-## Joining across tables
+## Joining the data
 
 ```{r echo=FALSE, warning=FALSE}
 join_query <- "
@@ -87,4 +87,44 @@ join_query <- "
 
 joined_data <- dbGetQuery(con, join_query)
 
+```
+
+## Inventory stock take
+
+```{r echo=FALSE,warning=FALSE}
+# SQL query for R-rated movie inventory by category and store
+query <- "
+WITH r_rated_movies AS (
+  SELECT film_id
+  FROM film
+  WHERE rating = 'R'
+)
+SELECT 
+  s.store_id AS store_number,
+  c.name AS movie_category,
+  COUNT(i.inventory_id) AS r_rated_count
+FROM store s
+JOIN inventory i ON s.store_id = i.store_id
+JOIN r_rated_movies r ON i.film_id = r.film_id
+JOIN film_category fc ON r.film_id = fc.film_id
+JOIN category c ON fc.category_id = c.category_id
+JOIN film f ON r.film_id = f.film_id
+WHERE f.rating = 'R'
+GROUP BY s.store_id, c.name
+ORDER BY s.store_id, r_rated_count DESC
+"
+
+# Execute the query
+r_rated_inventory <- dbGetQuery(con, query)
+
+# Plot the result
+
+ggplot(r_rated_inventory, aes(x = movie_category, y = r_rated_count, fill = factor(store_number))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_minimal() +
+  labs(title = "R-Rated Movie Inventory by Category and Store",
+       x = "Category",
+       y = "Count",
+       fill = "Store Number") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
