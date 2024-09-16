@@ -35,7 +35,8 @@ con <- dbConnect(
 if (dbIsValid(con)) {
   print("Connection to the database is successful!")
 } else {
-  print("Failed to connect to the database.")
+  print("Failed
+ to connect to the database.")
 }
 
 ```
@@ -92,39 +93,81 @@ joined_data <- dbGetQuery(con, join_query)
 ## Inventory stock take
 
 ```{r echo=FALSE,warning=FALSE}
-# SQL query for R-rated movie inventory by category and store
-query <- "
-WITH r_rated_movies AS (
-  SELECT film_id
-  FROM film
-  WHERE rating = 'R'
-)
-SELECT 
-  s.store_id AS store_number,
-  c.name AS movie_category,
-  COUNT(i.inventory_id) AS r_rated_count
-FROM store s
-JOIN inventory i ON s.store_id = i.store_id
-JOIN r_rated_movies r ON i.film_id = r.film_id
-JOIN film_category fc ON r.film_id = fc.film_id
-JOIN category c ON fc.category_id = c.category_id
-JOIN film f ON r.film_id = f.film_id
-WHERE f.rating = 'R'
-GROUP BY s.store_id, c.name
-ORDER BY s.store_id, r_rated_count DESC
+inventory_query <- "
+    WITH InventoryCounts AS (
+        SELECT
+            s.store_id,
+            c.name AS category_name,
+            COUNT(i.inventory_id) AS dvd_count
+        FROM
+            inventory i
+        JOIN
+            film f ON i.film_id = f.film_id
+        JOIN
+            film_category fc ON f.film_id = fc.film_id
+        JOIN
+            category c ON fc.category_id = c.category_id
+        JOIN
+            store s ON i.store_id = s.store_id
+        JOIN
+            rental r ON i.inventory_id = r.inventory_id
+        WHERE
+            f.rating = 'R'
+        GROUP BY
+            s.store_id, c.name
+    )
+    SELECT * FROM InventoryCounts
+    ORDER BY store_id, category_name;
+"
+inventory_data <- dbGetQuery(con, inventory_query)
+
+inventory_data <- inventory_data %>%
+    mutate(across(where(~ inherits(.x, "integer64")), as.numeric))
+
+ggplot(inventory_data, aes(x = category_name, y = dvd_count, fill = as.factor(store_id))) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = 'Stock of R-Rated Movies by Category and Store', x = 'Movie Category', y = 'Number of DVDs') +
+    theme_minimal()
+```
+
+## Optimisation
+
+```{r echo=FALSE, warning=FALSE}
+inventory_query_analyze <- "
+    EXPLAIN ANALYZE
+    WITH InventoryCounts AS (
+        SELECT
+            s.store_id,
+            c.name AS category_name,
+            COUNT(i.inventory_id) AS dvd_count
+        FROM
+            inventory i
+        JOIN
+            film f ON i.film_id = f.film_id
+        JOIN
+            film_category fc ON f.film_id = fc.film_id
+        JOIN
+            category c ON fc.category_id = c.category_id
+        JOIN
+            store s ON i.store_id = s.store_id
+        JOIN
+            rental r ON i.inventory_id = r.inventory_id
+        WHERE
+            f.rating = 'R'
+        GROUP BY
+            s.store_id, c.name
+    )
+    SELECT * FROM InventoryCounts
+    ORDER BY store_id, category_name;
 "
 
-# Execute the query
-r_rated_inventory <- dbGetQuery(con, query)
+# Execute EXPLAIN ANALYZE to review query performance
+execution_plan <- dbGetQuery(con, inventory_query_analyze)
 
-# Plot the result
+# Display the query execution plan
+print(execution_plan)
 
-ggplot(r_rated_inventory, aes(x = movie_category, y = r_rated_count, fill = factor(store_number))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  theme_minimal() +
-  labs(title = "R-Rated Movie Inventory by Category and Store",
-       x = "Category",
-       y = "Count",
-       fill = "Store Number") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{}
 ```
