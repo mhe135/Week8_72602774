@@ -75,5 +75,16 @@ ggplot(revenue_data, aes(x = rental_day, y = daily_revenue)) +
 
 ## Joining across tables
 
-```{}
+```{r echo=FALSE, warning=FALSE}
+join_query <- "
+    SELECT r.rental_id, c.first_name, c.last_name, f.title, p.amount
+    FROM rental r
+    JOIN customer c ON r.customer_id = c.customer_id
+    JOIN inventory i ON r.inventory_id = i.inventory_id
+    JOIN film f ON i.film_id = f.film_id
+    JOIN payment p ON r.rental_id = p.rental_id
+    WHERE r.rental_date BETWEEN '2024-01-01' AND '2024-12-31'"
+
+joined_data <- dbGetQuery(con, join_query)
+
 ```
