@@ -1,0 +1,79 @@
+---
+title: "SQL"
+format: html
+editor: visual
+---
+
+## Library package
+
+```{r echo=FALSE, warning=FALSE}
+# Load necessary library
+library(DBI)
+library(RPostgres)
+library(ggplot2)
+library(usethis)
+
+```
+
+## Create connection to PostgreSQL server
+
+```{r echo=FALSE, warning=FALSE}
+# Edit the .Renviron file to add environment variables
+usethis::edit_r_environ()
+
+# Create a connection object using environment variables
+con <- dbConnect(
+  Postgres(),
+  dbname = "Jeff",
+  host = Sys.getenv("PG_HOST"),
+  port = Sys.getenv("PG_PORT"),
+  user = Sys.getenv("PG_USR"),
+  password = Sys.getenv("PG_PASS")
+)
+
+# Check if the connection is valid
+if (dbIsValid(con)) {
+  print("Connection to the database is successful!")
+} else {
+  print("Failed to connect to the database.")
+}
+
+```
+
+## Listing tables and fields
+
+```{r echo=FALSE, warning=FALSE}
+# List all tables on the database
+dbListTables(con)
+# List the column names for a table not in the example
+dbListFields(con, "rental")
+# Pull the first ten rows of the rental table
+dbGetQuery(con, "SELECT * FROM rental LIMIT 10")
+# Pull the total number of rentals
+query <- "SELECT COUNT(*) FROM rental"
+dbGetQuery(con, query)
+```
+
+##  Plotting data
+
+```{r echo=FALSE, warning=FALSE}
+# SQL query to calculate total daily revenue
+revenue_query <- "
+    SELECT date_trunc('day', payment_date) AS rental_day, SUM(amount) AS daily_revenue
+    FROM payment
+    GROUP BY rental_day
+    ORDER BY rental_day"
+revenue_data <- dbGetQuery(con, revenue_query)
+
+# Plot the daily revenue
+ggplot(revenue_data, aes(x = rental_day, y = daily_revenue)) +
+    geom_line() +
+    labs(title = 'Total Daily Revenue', x = 'Date', y = 'Revenue') +
+    theme_minimal()
+
+```
+
+## Joining across tables
+
+```{}
+```
