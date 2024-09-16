@@ -10,6 +10,7 @@ editor: visual
 # Load necessary library
 library(DBI)
 library(RPostgres)
+library(dplyr)
 library(ggplot2)
 library(usethis)
 
@@ -169,5 +170,12 @@ print(execution_plan)
 
 ```
 
-```{}
-```
+## Statement
+
+Which step would you start with for optimisation ?
+
+Seq Scan on rental r. The cost is 310.44, which is relatively high for a sequential scan, especially for a table with 16,044 rows. The actual time spent on this operation is 1.249ms. The Seq Scan on rental means that the query is scanning all rows in the rental table, the dataset is large that inefficient.
+
+What does that step do ?
+
+Seq Scan means the database reads all rows in the rental table. This is inefficient for large tables unless all rows are needed. The absence of an index on a key column (e.g., inventory_id) triggers a full scan, which slows down the query.
