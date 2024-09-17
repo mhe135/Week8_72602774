@@ -175,43 +175,43 @@ Attaching package: 'dplyr'</code></pre>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>                                                                                                                                                                QUERY PLAN
-1                                                                                  Sort  (cost=635.55..635.63 rows=32 width=80) (actual time=5.027..5.035 rows=32 loops=1)
+1                                                                                  Sort  (cost=635.55..635.63 rows=32 width=80) (actual time=4.057..4.062 rows=32 loops=1)
 2                                                                                                        Sort Key: inventorycounts.store_id, inventorycounts.category_name
 3                                                                                                                                     Sort Method: quicksort  Memory: 27kB
 4                                                                                                                                                      CTE inventorycounts
-5                                                                     -&gt;  HashAggregate  (cost=633.79..634.11 rows=32 width=80) (actual time=4.969..4.980 rows=32 loops=1)
+5                                                                     -&gt;  HashAggregate  (cost=633.79..634.11 rows=32 width=80) (actual time=4.020..4.028 rows=32 loops=1)
 6                                                                                                                                            Group Key: s.store_id, c.name
-7                                                                     -&gt;  Hash Join  (cost=208.45..610.33 rows=3128 width=76) (actual time=1.311..4.323 rows=3181 loops=1)
+7                                                                     -&gt;  Hash Join  (cost=208.45..610.33 rows=3128 width=76) (actual time=1.252..3.522 rows=3181 loops=1)
 8                                                                                                                             Hash Cond: (r.inventory_id = i.inventory_id)
-9                                                           -&gt;  Seq Scan on rental r  (cost=0.00..310.44 rows=16044 width=4) (actual time=0.008..1.092 rows=16044 loops=1)
-10                                                                           -&gt;  Hash  (cost=197.29..197.29 rows=893 width=76) (actual time=1.300..1.304 rows=904 loops=1)
+9                                                           -&gt;  Seq Scan on rental r  (cost=0.00..310.44 rows=16044 width=4) (actual time=0.008..0.849 rows=16044 loops=1)
+10                                                                           -&gt;  Hash  (cost=197.29..197.29 rows=893 width=76) (actual time=1.240..1.243 rows=904 loops=1)
 11                                                                                                                           Buckets: 1024  Batches: 1  Memory Usage: 52kB
-12                                                                       -&gt;  Hash Join  (cost=93.06..197.29 rows=893 width=76) (actual time=0.510..1.178 rows=904 loops=1)
+12                                                                       -&gt;  Hash Join  (cost=93.06..197.29 rows=893 width=76) (actual time=0.408..1.118 rows=904 loops=1)
 13                                                                                                                                    Hash Cond: (i.store_id = s.store_id)
-14                                                                       -&gt;  Hash Join  (cost=92.02..188.94 rows=893 width=74) (actual time=0.493..1.057 rows=904 loops=1)
+14                                                                       -&gt;  Hash Join  (cost=92.02..188.94 rows=893 width=74) (actual time=0.391..0.992 rows=904 loops=1)
 15                                                                                                                                      Hash Cond: (i.film_id = f.film_id)
-16                                                          -&gt;  Seq Scan on inventory i  (cost=0.00..70.81 rows=4581 width=8) (actual time=0.004..0.216 rows=4581 loops=1)
-17                                                                             -&gt;  Hash  (cost=89.58..89.58 rows=195 width=74) (actual time=0.477..0.479 rows=195 loops=1)
+16                                                          -&gt;  Seq Scan on inventory i  (cost=0.00..70.81 rows=4581 width=8) (actual time=0.004..0.237 rows=4581 loops=1)
+17                                                                             -&gt;  Hash  (cost=89.58..89.58 rows=195 width=74) (actual time=0.379..0.381 rows=195 loops=1)
 18                                                                                                                           Buckets: 1024  Batches: 1  Memory Usage: 17kB
-19                                                                        -&gt;  Hash Join  (cost=70.30..89.58 rows=195 width=74) (actual time=0.304..0.448 rows=195 loops=1)
+19                                                                        -&gt;  Hash Join  (cost=70.30..89.58 rows=195 width=74) (actual time=0.209..0.353 rows=195 loops=1)
 20                                                                                                                             Hash Cond: (fc.category_id = c.category_id)
-21                                                                         -&gt;  Hash Join  (cost=68.94..87.57 rows=195 width=8) (actual time=0.289..0.409 rows=195 loops=1)
+21                                                                         -&gt;  Hash Join  (cost=68.94..87.57 rows=195 width=8) (actual time=0.195..0.317 rows=195 loops=1)
 22                                                                                                                                     Hash Cond: (fc.film_id = f.film_id)
-23                                                     -&gt;  Seq Scan on film_category fc  (cost=0.00..16.00 rows=1000 width=4) (actual time=0.004..0.049 rows=1000 loops=1)
-24                                                                              -&gt;  Hash  (cost=66.50..66.50 rows=195 width=4) (actual time=0.273..0.273 rows=195 loops=1)
+23                                                     -&gt;  Seq Scan on film_category fc  (cost=0.00..16.00 rows=1000 width=4) (actual time=0.003..0.055 rows=1000 loops=1)
+24                                                                              -&gt;  Hash  (cost=66.50..66.50 rows=195 width=4) (actual time=0.179..0.180 rows=195 loops=1)
 25                                                                                                                           Buckets: 1024  Batches: 1  Memory Usage: 15kB
-26                                                                 -&gt;  Seq Scan on film f  (cost=0.00..66.50 rows=195 width=4) (actual time=0.004..0.229 rows=195 loops=1)
+26                                                                 -&gt;  Seq Scan on film f  (cost=0.00..66.50 rows=195 width=4) (actual time=0.004..0.150 rows=195 loops=1)
 27                                                                                                                                     Filter: (rating = 'R'::mpaa_rating)
 28                                                                                                                                             Rows Removed by Filter: 805
 29                                                                                 -&gt;  Hash  (cost=1.16..1.16 rows=16 width=72) (actual time=0.009..0.010 rows=16 loops=1)
 30                                                                                                                            Buckets: 1024  Batches: 1  Memory Usage: 9kB
 31                                                               -&gt;  Seq Scan on category c  (cost=0.00..1.16 rows=16 width=72) (actual time=0.003..0.005 rows=16 loops=1)
-32                                                                                    -&gt;  Hash  (cost=1.02..1.02 rows=2 width=4) (actual time=0.005..0.005 rows=2 loops=1)
+32                                                                                    -&gt;  Hash  (cost=1.02..1.02 rows=2 width=4) (actual time=0.006..0.006 rows=2 loops=1)
 33                                                                                                                            Buckets: 1024  Batches: 1  Memory Usage: 9kB
-34                                                                     -&gt;  Seq Scan on store s  (cost=0.00..1.02 rows=2 width=4) (actual time=0.003..0.003 rows=2 loops=1)
-35                                                          -&gt;  CTE Scan on inventorycounts  (cost=0.00..0.64 rows=32 width=80) (actual time=4.972..4.988 rows=32 loops=1)
-36                                                                                                                                                 Planning time: 0.885 ms
-37                                                                                                                                                Execution time: 5.094 ms</code></pre>
+34                                                                     -&gt;  Seq Scan on store s  (cost=0.00..1.02 rows=2 width=4) (actual time=0.003..0.004 rows=2 loops=1)
+35                                                          -&gt;  CTE Scan on inventorycounts  (cost=0.00..0.64 rows=32 width=80) (actual time=4.022..4.032 rows=32 loops=1)
+36                                                                                                                                                 Planning time: 1.007 ms
+37                                                                                                                                                Execution time: 4.120 ms</code></pre>
 </div>
 </div>
 </section>
